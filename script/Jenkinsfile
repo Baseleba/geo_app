@@ -27,7 +27,7 @@ pipeline{
             steps{
                 sh 'curl -uadmin:AP75C97147qfehuSCezTx69zJ1D -T \
                  target/geo*.jar \
-                 "http://54.236.26.60:8081/artifactory/Geo_App/geo/bio_${BUILD_ID}.jar"'
+                 "http://54.237.100.134:8081/artifactory/Geo_App/geo/bio_${BUILD_ID}.jar"'
             }
         }
             stage('docker login'){
