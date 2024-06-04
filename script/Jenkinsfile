@@ -15,7 +15,12 @@ pipeline{
         }
         stage("maven1"){
             steps{
-                sh 'mvn clean validate compile install test package'
+                sh 'mvn clean '
+                sh 'mvn validate'
+                sh 'mvn compile' 
+                sh 'mvn install' 
+                sh 'mvn test'
+                sh 'mvn package'
             }
         }
         stage('upload artifact'){
@@ -25,5 +30,30 @@ pipeline{
                  "http://54.236.26.60:8081/artifactory/Geo_App/geo/bio_${BUILD_ID}.jar"'
             }
         }
+            stage('docker login'){
+        steps{
+            sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 122403657644.dkr.ecr.us-east-1.amazonaws.com'
+        }
+    }
+    stage('docker image build'){
+        steps{
+            sh 'docker build -t utc-app-dev:v.${BUILD_ID} .'
+            sh 'docker build -t utc-app-dev .'
+        }
+    }
+    stage('Image tagging'){
+        steps{
+            sh 'docker tag utc-app-dev:v.${BUILD_ID} \
+            122403657644.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}'
+            sh 'docker tag utc-app-dev:latest 122403657644.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest'
+
+        }
+    }
+    stage('push image'){
+        steps{  
+        sh 'docker push 122403657644.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest'
+        sh 'docker push 122403657644.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}'
+    }
+    }
     }
 }
